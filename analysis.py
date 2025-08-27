@@ -72,11 +72,9 @@ def main():
     print("Analysis complete.")
 
     # --- Data Processing and Plotting ---
-    fig, axes = plt.subplots(3, 1, figsize=(12, 18), constrained_layout=True)
-    fig.suptitle('DFS Performance Analysis', fontsize=16)
 
     # 1. Execution Time Plot
-    ax1 = axes[0]
+    fig1, ax1 = plt.subplots(figsize=(10, 6))
     bar_width = 0.2
     for i, density in enumerate(OBSTACLE_DENSITIES):
         rec_times = [np.mean([run['time'] for run in results[size][density]['recursive']]) for size in GRID_SIZES]
@@ -91,9 +89,11 @@ def main():
     ax1.set_xticks([r + bar_width for r in range(len(GRID_SIZES))])
     ax1.set_xticklabels([f'{s[0]}x{s[1]}' for s in GRID_SIZES])
     ax1.legend()
+    fig1.savefig('execution_time_analysis.png')
+    print("Execution time analysis saved to execution_time_analysis.png")
 
     # 2. Memory Usage Plot
-    ax2 = axes[1]
+    fig2, ax2 = plt.subplots(figsize=(10, 6))
     for i, density in enumerate(OBSTACLE_DENSITIES):
         rec_mems = [np.mean([run['memory'] for run in results[size][density]['recursive']]) for size in GRID_SIZES]
         it_mems = [np.mean([run['memory'] for run in results[size][density]['iterative']]) for size in GRID_SIZES]
@@ -107,9 +107,11 @@ def main():
     ax2.set_xticks([r + bar_width for r in range(len(GRID_SIZES))])
     ax2.set_xticklabels([f'{s[0]}x{s[1]}' for s in GRID_SIZES])
     ax2.legend()
+    fig2.savefig('memory_usage_analysis.png')
+    print("Memory usage analysis saved to memory_usage_analysis.png")
 
     # 3. Stack Depth Plot
-    ax3 = axes[2]
+    fig3, ax3 = plt.subplots(figsize=(10, 6))
     for i, density in enumerate(OBSTACLE_DENSITIES):
         depths = [np.mean([run['depth'] for run in results[size][density]['recursive']]) for size in GRID_SIZES]
         ax3.plot([f'{s[0]}x{s[1]}' for s in GRID_SIZES], depths, marker='o', linestyle='-', label=f'Density {density*100}%')
@@ -118,10 +120,8 @@ def main():
     ax3.set_ylabel('Stack Depth')
     ax3.set_xlabel('Grid Size')
     ax3.legend()
-
-    # Save the figure
-    plt.savefig('analysis_report.png')
-    print("Analysis report saved to analysis_report.png")
+    fig3.savefig('stack_depth_analysis.png')
+    print("Stack depth analysis saved to stack_depth_analysis.png")
 
 if __name__ == '__main__':
     main()
