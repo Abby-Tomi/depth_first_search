@@ -41,7 +41,7 @@ class TestDFSSolver(unittest.TestCase):
         print(f"\n--- Running {test_name} ---")
 
         # Test Recursive DFS
-        recursive_path = find_path_recursive(graph, start, goal)
+        recursive_path, recursive_history = find_path_recursive(graph, start, goal)
         recursive_path_str = [str(node) for node in recursive_path] if recursive_path else None
         print(f"Recursive DFS Result: {recursive_path_str}")
 
@@ -58,7 +58,7 @@ class TestDFSSolver(unittest.TestCase):
 
 
         # Test Iterative DFS
-        iterative_path = dfs_iterative(graph, start, goal)
+        iterative_path, iterative_history = dfs_iterative(graph, start, goal)
         iterative_path_str = [str(node) for node in iterative_path] if iterative_path else None
         print(f"Iterative DFS Result: {iterative_path_str}")
 
@@ -114,7 +114,7 @@ class TestDFSSolver(unittest.TestCase):
         Tests DFS when the goal is completely blocked off, expecting no path.
         """
         # Block the goal (4,4) from all sides
-        obstacles_coords = [(3, 4), (4, 3), (4, 2), (3, 2)] # Block off the last row/column approach
+        obstacles_coords = [(3, 4), (4, 3)]
         obstacles_cells = [Cell(*o) for o in obstacles_coords]
         maze_graph = create_graph_from_grid(self.grid_dims, obstacles_cells)
 
@@ -171,16 +171,12 @@ class TestDFSSolver(unittest.TestCase):
         obstacles_coords = [
             (0, 2), # Block (0,1) from (0,3)
             (1, 2)  # Block (1,1) from (1,3)
-            # Removed (2,0) and (2,1) to open up a path
         ]
         obstacles_cells = [Cell(*o) for o in obstacles_coords]
         maze_graph = create_graph_from_grid((rows, cols), obstacles_cells)
 
-        # A path exists: (0,0) -> (1,0) -> (2,0) -> (3,0) -> (3,1) -> (3,2) -> (3,3)
-        # Or: (0,0) -> (0,1) -> (1,1) -> (2,2) -> (2,3) -> (3,3)
-        # With sorted neighbors, it should find one of these.
-        recursive_path = find_path_recursive(maze_graph, start, goal)
-        iterative_path = dfs_iterative(maze_graph, start, goal)
+        recursive_path, _ = find_path_recursive(maze_graph, start, goal)
+        iterative_path, _ = dfs_iterative(maze_graph, start, goal)
 
         self.assertIsNotNone(recursive_path, "Recursive DFS should find a path for maze with dead ends")
         self.assertEqual(str(recursive_path[0]), str(start), "Recursive DFS path should start correctly")
@@ -190,14 +186,28 @@ class TestDFSSolver(unittest.TestCase):
         self.assertEqual(str(iterative_path[0]), str(start), "Iterative DFS path should start correctly")
         self.assertEqual(str(iterative_path[-1]), str(goal), "Iterative DFS path should end correctly")
 
-        # Optional: Print paths for inspection if you want to see what was found
         print(f"\n--- Running Maze with Dead Ends ---")
         print(f"Recursive DFS Path: {[str(node) for node in recursive_path] if recursive_path else None}")
         print(f"Iterative DFS Path: {[str(node) for node in iterative_path] if iterative_path else None}")
 
+    def test_complex_maze(self):
+        """
+        Tests DFS on a more complex maze with multiple paths and dead ends.
+        """
+        rows, cols = 6, 6
+        start = Cell(0, 0)
+        goal = Cell(5, 5)
+        obstacles_coords = [
+            (0, 1), (1, 1), (2, 1), (3, 1), (4, 1),
+            (1, 3), (2, 3), (3, 3), (4, 3), (5, 3),
+            (1, 4), (2, 4), (3, 4), (4, 4),
+        ]
+        obstacles_cells = [Cell(*o) for o in obstacles_coords]
+        maze_graph = create_graph_from_grid((rows, cols), obstacles_cells)
+
+        self._run_dfs_tests(maze_graph, start, goal, ['(0, 0)', '(5, 5)'], "Complex Maze", check_exact_path=False)
 
 # This block allows you to run the tests directly from the command line
 if __name__ == '__main__':
-    # Using argv and exit=False is good practice for environments like Jupyter/certain IDEs
     unittest.main(argv=['first-arg-is-ignored'], exit=False)
 
