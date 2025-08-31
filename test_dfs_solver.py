@@ -41,7 +41,7 @@ class TestDFSSolver(unittest.TestCase):
         print(f"\n--- Running {test_name} ---")
 
         # Test Recursive DFS
-        recursive_path, recursive_history = find_path_recursive(graph, start, goal)
+        recursive_path, recursive_history, _ = find_path_recursive(graph, start, goal)
         recursive_path_str = [str(node) for node in recursive_path] if recursive_path else None
         print(f"Recursive DFS Result: {recursive_path_str}")
 
@@ -175,7 +175,7 @@ class TestDFSSolver(unittest.TestCase):
         obstacles_cells = [Cell(*o) for o in obstacles_coords]
         maze_graph = create_graph_from_grid((rows, cols), obstacles_cells)
 
-        recursive_path, _ = find_path_recursive(maze_graph, start, goal)
+        recursive_path, _, _ = find_path_recursive(maze_graph, start, goal)
         iterative_path, _ = dfs_iterative(maze_graph, start, goal)
 
         self.assertIsNotNone(recursive_path, "Recursive DFS should find a path for maze with dead ends")
